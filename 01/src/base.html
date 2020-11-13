@@ -36,6 +36,11 @@
     </pre>
     <h2>links</h2>
     <a href="leaf?a=b&c=d">leaf?a=b&amp;c=d</a> <a href="dir/dir/fname">dir/dir/fname</a> <a href="../">..</a>
+    <h1>session.history</h1>
+    <p>セッションにオブジェクトを覚えてもらう</p>
+    <pre>
+      @session.history = <%=h @session.history.pretty_inspect %>
+    </pre>    
   </div>
 </main>
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>

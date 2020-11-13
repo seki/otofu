@@ -8,10 +8,12 @@ module OTofu
     def initialize(bartender, hint='')
       super
       @base = BaseTofu.new(self)
+      @history = []
     end
-    attr_reader :base
+    attr_reader :base, :history
     
     def do_GET(context)
+      @history << [Time.now, context.req.path_info]
       context.res_header('pragma', 'no-store')
       context.res_header('cache-control', 'no-store')
       context.res_header('expires', 'Thu, 01 Dec 1994 16:00:00 GMT')
