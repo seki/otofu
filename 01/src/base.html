@@ -11,10 +11,10 @@
 %>
 <body>
 <nav class="navbar navbar-expand bg-secondary py-1 navbar-dark">
-  <a class="navbar-brand" href="<%=h root + "./index.html" %>">OTofu</a>
+  <a class="navbar-brand" href="<%=h root %>">OTofu</a>
   <div class="collapse navbar-collapse">
     <ul class="navbar-nav mr-auto">
-      <li class="nav-item"><a class="nav-link" href="<%=h root + "./admin" %>">管理者メニュー</a></li>
+      <li class="nav-item"><a class="nav-link" href="<%=h root + "./admin/menu" %>">管理者メニュー</a></li>
     </ul>
 
     <ul class="navbar-nav">
@@ -34,8 +34,6 @@
       script_name = <%=h context.req.script_name.pretty_inspect %>
       query = <%=h context.req.query.pretty_inspect %>
     </pre>
-    <h2>links</h2>
-    <a href="leaf?a=b&c=d">leaf?a=b&amp;c=d</a> <a href="dir/dir/fname">dir/dir/fname</a> <a href="../">..</a>
     <h1>session.history</h1>
     <p>セッションにオブジェクトを覚えてもらう</p>
     <pre>

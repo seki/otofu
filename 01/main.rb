@@ -9,8 +9,12 @@ server = WEBrick::HTTPServer.new({
 })
 
 tofu = Tofu::Bartender.new(OTofu::Session, 'otofu')
-server.mount('/otofu/', Tofu::Tofulet, tofu)
-server.mount('/app/', Tofu::Tofulet, tofu)
+server.mount('/app', Tofu::Tofulet, tofu)
+
+server.mount_proc('/') {|req, res|
+  res['Pragma'] = 'no-store'
+  res.set_redirect(WEBrick::HTTPStatus::MovedPermanently, '/app')
+}
 
 trap(:INT){exit!}
 server.start
