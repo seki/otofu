@@ -9,8 +9,7 @@ server = WEBrick::HTTPServer.new({
 })
 
 tofu = Tofu::Bartender.new(OTofu::Session, 'otofu')
-server.mount('/otofu/', Tofu::Tofulet, tofu)
-server.mount('/app/', Tofu::Tofulet, tofu)
+server.mount('/', Tofu::Tofulet, tofu)
 
 trap(:INT){exit!}
 server.start
