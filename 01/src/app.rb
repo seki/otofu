@@ -8,12 +8,9 @@ module OTofu
     def initialize(bartender, hint='')
       super
       @base = BaseTofu.new(self)
-      @history = []
     end
-    attr_reader :base, :history
     
     def do_GET(context)
-      @history << [Time.now, context.req.path_info]
       context.res_header('cache-control', 'no-store')
       super(context)
     end

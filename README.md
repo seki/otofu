@@ -110,7 +110,7 @@ API的なサービス（レスポンスがJSONなどHTML以外のなにか）の
 WEBrickのWebサーバーを作り、Bartenderをマウントします。
 
 ### src/app.rb
-SessionとTofuの定義があります。Tofu::Sessionのサブクラス、
+Tofu::SessionのサブクラスとTofu::Tofuのサブクラスを書きます。
 
 ```
 module OTofu
@@ -217,4 +217,8 @@ BaseTofuから利用できるメソッドや変数と協調することができ
 #### マウントポイントの変更
 
 マウントポイントを/appから/otofuに変更してみましょう。
+
+## 02
+
+ログイン的な機能を追加します。
 
