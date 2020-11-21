@@ -312,10 +312,9 @@ LoginTofuがWidgetとして提供するメソッドは次の三つです。
 - do_login(context, params)   # パスワードを入力し、ログイン処理をする
 - do_resend(context, params)  # やりかけの認証を中断して、最初からやり直す
 
-ログイン処理中にしか使わない状態はLoginTofuがインスタンス変数として管理します。
+ログイン処理中にしか使わない状態はLoginTofuのインスタンス変数として管理します。
 
 - @confirm = nil              # 送信したパスワード。送信していなければnil。
 - @curr_hint = @session.hint  # 未ログイン時に表示する、前回のメールアドレス
 - @show = false               # 表示状態
-
 
