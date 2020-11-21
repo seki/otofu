@@ -32,6 +32,7 @@
 </nav>
 
 <main>
+  <%= @login.to_html(context) %>
   <div class="container">
     <h1>context</h1>
     <p>context.reqの path_info, script_name, queryを調べよう。</p>

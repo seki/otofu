@@ -1,7 +1,8 @@
 # OTofu
 
 なにもしないWeb UIフレームワーク、tofuのチュートリアルです。
-TofuはX11, Xtのプログラミングの経験を元にデザインしました。非常に古風なアーキテクチャです。
+TofuはX11, Xtのプログラミングの経験を元にデザインしました。
+CGI全盛の世代からやってきた非常に古風なアーキテクチャです。
 
 ## 準備
 
@@ -221,4 +222,100 @@ BaseTofuから利用できるメソッドや変数と協調することができ
 ## 02
 
 ログイン的な機能を追加します。
+今回はパスワードの管理等がめんどうなのでメールで一度限りのパウワードを送信するようにします。
+
+### Mail
+
+最近ではSMTPを利用してメール送信するのになんらかの認証が必要なケースが増えています。
+src/mail_config.rbでメール送信の設定をすることにします。利用できるサーバに合わせて書き換えてください。
+以下はherokuで利用しやすいSendGridの例です。環境変数で設定してください。
+
+```
+Mail.defaults do
+  delivery_method :smtp, { :address   => "smtp.sendgrid.net",
+                           :port      => 587,
+                           :domain    => ENV['SENDGRID_DOMAIN'],
+                           :user_name => ENV["SENDGRID_USERNAME"],
+                           :password  => ENV["SENDGRID_PASSWORD"],
+                           :authentication => :plain,
+                           :enable_starttls_auto => true }
+end
+```
+
+これ以外の例としてiCloudとGMailの設定を調べてみました。（が、どちらも以下の設定を参考に送れたので、特別な情報はありません）
+アプリケーション用のパスワードを発行すると送れるようです。
+
+- https://support.apple.com/ja-jp/HT202304
+- https://support.google.com/mail/answer/185833?hl=ja
+
+```
+Mail.defaults do
+  delivery_method :smtp, { :address   => "smtp.mail.me.com",
+                           :port      => 587,
+                           :user_name => ENV["ICLOUD_USERNAME"],
+                           :password  => ENV["ICLOUD_APP_PASSWORD"],
+                           :authentication => :plain,
+                           :enable_starttls_auto => true }
+end
+```
+
+```
+Mail.defaults do
+  delivery_method :smtp, { :address   => "smtp.gmail.com",
+                           :port      => 587,
+                           :user_name => ENV["GMAIL_USERNAME"],
+                           :password  => ENV["GMAIL_APP_PASSWORD"],
+                           :authentication => :plain,
+                           :enable_starttls_auto => true }
+end
+```
+
+### ユーティリティ
+
+パラメーターを正規化するメソッドをTofuのベースクラスに追加しておきます。
+
+- エンコードをutf-8
+- 空白の削除
+
+常にこれが期待した動作とは言い切れないため、Tofu本体には定義されていません。
+
+
+```
+module Tofu
+  class Tofu
+    def normalize_string(str_or_param)
+      str ,= str_or_param
+      return '' unless str
+      str.force_encoding('utf-8').strip
+    end
+  end
+end
+```
+
+### LoginTofu
+
+LoginTofuはログインにまつわるUIを実現するTofu::Tofuです。
+BaseTofuの中に配置して使います。
+
+見た目はlogin.htmlで定義されます。BaseTofuの内側で使われるので、html, bodyなどは書かれていません。
+
+Tofu::TofuはGET/POSTなどでブラウザにUI操作を提供します。Rubyではdo_をプレフィックスとしたメソッドとして定義します。
+```
+  def do_foo(context, params)
+```
+contextはto_htmlで渡るのと同じ、WEBrickのリクエストとレスポンスです。
+paramsはリクエストから取り出したパラメータです。contextからも取れるので、今となっては不要かもしれませんが互換性のために残されています。
+
+LoginTofuがWidgetとして提供するメソッドは次の三つです。
+
+- do_send(context, params)    # メールアドレスを入力し、メールを送る
+- do_login(context, params)   # パスワードを入力し、ログイン処理をする
+- do_resend(context, params)  # やりかけの認証を中断して、最初からやり直す
+
+ログイン処理中にしか使わない状態はLoginTofuがインスタンス変数として管理します。
+
+- @confirm = nil              # 送信したパスワード。送信していなければnil。
+- @curr_hint = @session.hint  # 未ログイン時に表示する、前回のメールアドレス
+- @show = false               # 表示状態
+
 

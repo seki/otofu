@@ -4,6 +4,16 @@ require 'pathname'
 require 'pp'
 require_relative './mail_config'
 
+module Tofu
+  class Tofu
+    def normalize_string(str_or_param)
+      str ,= str_or_param
+      return '' unless str
+      str.force_encoding('utf-8').strip
+    end
+  end
+end
+
 module OTofu
   class Session < Tofu::Session
     def initialize(bartender, hint='')
@@ -35,12 +45,6 @@ module OTofu
     def logout
       @user = nil
     end
-
-    def normalize_string(str)
-      return '' unless str
-      str.force_encoding('utf-8')
-      str.strip
-    end
   end
 
   class BaseTofu < Tofu::Tofu
@@ -48,7 +52,7 @@ module OTofu
 
     def initialize(session)
       super(session)
-      @login = LoginTofu.new(self)
+      @login = LoginTofu.new(session)
     end
 
     def tofu_id
@@ -62,7 +66,7 @@ module OTofu
     end
 
     def do_login(context, params)
-      @session.login('test')
+      @login.show = true
     end
 
     def do_logout(context, params)
@@ -76,26 +80,31 @@ module OTofu
 
     def initialize(session)
       super(session)
-      @sent = false
       @confirm = nil
       @curr_hint = @session.hint
+      @show = false
+    end
+    attr_accessor :show
+
+    def sent?
+      ! @confirm.nil?
     end
 
     def tofu_id
       'login'
     end
 
-    def do_send(context, params)
-      email ,= params['email']
-      email = @session.normalize_string(email)
-      return if email.empty?
+    def valid_email?(email)
+      @session.valid_email?(email)
+    end
 
-      return unless @session.valid_email?(email)
+    def do_send(context, params)
+      email = normalize_string(params['email'])
+      return unless valid_email?(email)
 
       @email = email
       @curr_hint = email
 
-      @sent = true
       @confirm = "%06d" % rand(1000000)
       p [:confirm, @confirm]
 
@@ -103,19 +112,18 @@ module OTofu
     end
 
     def do_login(context, params)
-      password ,= params['password']
-      password = @session.normalize_string(password)
-      return if password.empty?
+      password = normalize_string(params['password'])
+
       if @confirm == password
         @session.login(@email)
-        @sent = false
         @confirm = nil
+        @show = false
       end
     end
 
     def do_resend(context, params)
-      @sent = false
       @confirm = nil
+      @show = false
     end
 
     def send_mail(addr, context)
@@ -127,7 +135,7 @@ module OTofu
 EOM
       mail = Mail.deliver do
         to addr
-        from 'noreply@jdesign.co.jp'
+        from 'noreply@example.com'
         subject 'ワンタイムパスワード送付'
         text_part do
           body content

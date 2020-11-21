@@ -1,7 +1,8 @@
+<% if @show %>
   <div class="container">
     <div class="alert m-2 alert-info">
       <h1>ログイン</h1>
-    <% if @sent %>
+    <% if sent? %>
       <%=h @email %>に届いた6桁の数字を入力してください。
       <%= form('login', context) %>
         <div class="form-row align-items-center my-2">
@@ -32,3 +33,4 @@
     <% end %>
     </div>
   </div>
+<% end %>
