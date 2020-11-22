@@ -349,6 +349,30 @@ to_htmlを使ってレスポンス（HTML）を生成させます。
 メールアドレスの有効性は今回は事前に登録されたものと一致するかどうかで調べています。
 （@sessionのvalid_email?で実装されています）
 
+さて、do_sendを呼ぶにはどのようにするか、login.htmlを見てみましょう。
+login.htmlはERBで記述された、LoginTofuのto_htmlメソッドの実装です。
+
+真ん中辺りに次のようなコードがあります。
+
+```
+      次のアドレスにワンタイムパスワードを送ります。
+      <%= form('send', context) %>
+        <div class="form-row align-items-center my-2">
+          <div class="col-auto">
+           <input type="email" name="email" class="form-control" id="loginEmail"
+              value="<%=h @curr_hint %>"
+              aria-describedby="emailHelp" placeholder="E-Mail">
+          </div>
+          <div class="col-auto">
+            <button type="submit" class="btn btn-primary">送信</button>
+          </div>
+      </form>
+```
+
+```<%= form('send', context)>```はTofu::Tofuのメソッドで、do_sendを呼び出すリンクになるform要素を返します。
+```<form>```の代わりにこのERBを書いておくと、Tofuのフレームワークのための情報が追加され、LoginTofuのdo_sendに届けられます。
+
+
 #### do_login
 
 ユーザーがブラウザでパスワードを入力したときに呼ばれるメソッドです。
@@ -370,4 +394,71 @@ to_htmlを使ってレスポンス（HTML）を生成させます。
 3. @session.loginでセッションのユーザーを変更する
 4. メモした状態を忘れ、非表示にする
 
+#### do_resend
+
+ログイン処理を最初からやり直したいときに呼ばれるメソッドです。
+
+```
+    def do_resend(context, params)
+      @confirm = nil
+      @show = false
+    end
+```
+
+メモしておいた@confirmを忘れて、非表示にします。login.htmlでは次のように呼び出すリンクを埋め込んでいます。
+
+```
+        <%=a('resend', {}, context) %>はじめからやり直す</a>
+```
+
+Tofu::Tofu#aはメソッドを呼び出すためのリンクを持ったa要素を返します。```<a>```の代わりに埋め込んでください。
+
+### 再びBaseTofu
+
+02のBaseTofuではLoginTofuを管理するコードやsessionのユーザー情報を管理するコードが追加されています。
+
+```
+    def initialize(session)
+      super(session)
+      @login = LoginTofu.new(session)
+    end
+
+    def do_login(context, params)
+      @login.show = true
+    end
+
+    def do_logout(context, params)
+      @session.logout
+    end
+```
+
+LoginTofuオブジェクトはBaseTofuのインスタンス変数@loginに保持されます。
+
+do_loginはLoginTofuの表示状態をtrueに変更するメソッドです。
+base.htmlでは次のように@loginのto_htmlを挿入します。　
+
+```
+  <%= @login.to_html(context) %>
+```
+
+LoginTofuオブジェクトは自身の表示状態に合わせたHTMLの断片を返します。falseの場合には空文字列を返すので、LoginTofuは見えなくなります。
+
+do_logoutは@sessionの持つユーザー情報を初期化して、ユーザーと紐ついていない状態にします。
+
+Tofu::Tofuには先程のform、aなど、Tofu::Tofuの操作のための情報をもったリンクを生成するメソッドがいくつかあります。
+base.htmlでは、右端の「ログイン」「ログアウト」のためにhrefを使っています。
+
+```
+    <ul class="navbar-nav">
+      <li class="nav-item">
+<% if @session.user %>
+        <a class="nav-link" <%=href('logout', {}, context)%>>ログアウト</a>
+<% else %>
+        <a class="nav-link" <%=href('login', {}, context)%>>ログイン</a>
+<% end %>
+      </li>
+    </ul>
+```
+
+#### まとめ
 
