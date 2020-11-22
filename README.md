@@ -372,6 +372,16 @@ login.htmlはERBで記述された、LoginTofuのto_htmlメソッドの実装で
 ```<%= form('send', context)>```はTofu::Tofuのメソッドで、do_sendを呼び出すリンクになるform要素を返します。
 ```<form>```の代わりにこのERBを書いておくと、Tofuのフレームワークのための情報が追加され、LoginTofuのdo_sendに届けられます。
 
+実際に生成されるHTMLは次のようになります。
+
+```
+      次のアドレスにワンタイムパスワードを送ります。
+      <form action="/app/admin/menu" method="post" enctype="multipart/form-data">
+<input type="hidden" name="tofu_id" value="login" />
+<input type="hidden" name="tofu_cmd" value="send" />
+```
+
+
 
 #### do_login
 
@@ -412,6 +422,24 @@ login.htmlはERBで記述された、LoginTofuのto_htmlメソッドの実装で
 ```
 
 Tofu::Tofu#aはメソッドを呼び出すためのリンクを持ったa要素を返します。```<a>```の代わりに埋め込んでください。
+実際に作られたHTMLを以下に示します。
+
+```
+        <a href="/app/admin/menu?tofu_id=login&tofu_cmd=resend">はじめからやり直す</a>
+```
+
+#### tofu_id
+
+リンクやフォームに埋め込まれるtofu_idはsessionの中からTofu::Tofuを探し出すためのIDです。
+sessionの中で一意でなければなりません。
+BaseTofu, LoginTofuともtofu_idというメソッドを定義して固定値を返しています。
+これを定義しない場合は、Tofu::Tofuにあるtofu_idが呼ばれObjectのidから作られた値になります。
+
+LoginTofu#tofu_idメソッドを削除した場合の出力の例です。
+
+```
+        <a href="/app?tofu_id=840&tofu_cmd=resend">はじめからやり直す</a>
+```
 
 ### 再びBaseTofu
 
@@ -461,4 +489,17 @@ base.htmlでは、右端の「ログイン」「ログアウト」のためにhr
 ```
 
 #### まとめ
+
+BaseTofuとの関わりを含めて、LoginTofuを説明しました。
+
+Tofu::TofuはGUIプログラミングにおける、WindowやWidgetに相当します。
+それ自体がGUIのための状態をもち、操作を受け付けます。
+Tofuのフレームワークのデザインの最も重要な点は、Web UIの部分だけを提供するもの、という点です。
+モデルは別にあり、たまたまWebの操作をつけただけなのです。
+本当のウィンドウシステムのGUIだったりコマンドラインのインターフェイスだったり、モバイルアプリだったりするのは
+モデルに対しての操作系の一つのUIに過ぎないはずです。
+ですから、Web UIのためのフレームワークのTofuの中にはモデルへの支援は存在しません。
+アプリケーション本体は好きに書くことができます。というか、好きに書かせてくれ。
+
+（最初期のTofu/Divでは同じコードでGUIをtcl/tkにすることができるサンプルが含まれていました）
 
