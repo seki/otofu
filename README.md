@@ -318,3 +318,56 @@ LoginTofuがWidgetとして提供するメソッドは次の三つです。
 - @curr_hint = @session.hint  # 未ログイン時に表示する、前回のメールアドレス
 - @show = false               # 表示状態
 
+#### do_send
+
+ユーザーがブラウザからE-Mailアドレスを入力したときに呼ばれるメソッドです。
+
+```
+    def do_send(context, params)
+      email = normalize_string(params['email'])
+      return unless valid_email?(email)
+
+      @email = email
+      @curr_hint = email
+
+      @confirm = "%06d" % rand(1000000)
+      p [:confirm, @confirm]
+
+      send_mail(email, context)
+    end
+```
+
+1. リクエストから'email'を取り出す
+2. emailが有効かどうか検査して@emailに覚える
+3. 乱数でパスワードを生成して、@confirmに覚える
+4. メールを送信する
+
+通常、do_xxxの中でレスポンスを生成しません。
+Tofuのフレームワークは、do_xxxが終わるとlookup_viewで土台のTofu::Tofu（この場合は@base）を選び、
+to_htmlを使ってレスポンス（HTML）を生成させます。
+
+メールアドレスの有効性は今回は事前に登録されたものと一致するかどうかで調べています。
+（@sessionのvalid_email?で実装されています）
+
+#### do_login
+
+ユーザーがブラウザでパスワードを入力したときに呼ばれるメソッドです。
+
+```
+    def do_login(context, params)
+      password = normalize_string(params['password'])
+
+      if @confirm == password
+        @session.login(@email)
+        @confirm = nil
+        @show = false
+      end
+    end
+```
+
+1. リクエストから'password'を取り出す
+2. @confirmと一致するか調べる
+3. @session.loginでセッションのユーザーを変更する
+4. メモした状態を忘れ、非表示にする
+
+
