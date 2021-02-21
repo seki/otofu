@@ -1,0 +1,120 @@
+<div class="container">
+  <div class="card card-default">
+    <div class="card-header"><%= title %></div>
+    <div class="card-body">
+      <form><% doc.each do |q| 
+        q_id = "Q-#{q['id']}" %>
+        <div class="form-group">
+          <label for="<%=h q_id %>"><%=h q['id'] %>. <%=h q['label'] %></label><%
+        case q['type']
+        when 'text'
+        %>
+          <input class="form-control" type="text" id="<%=h q_id %>" name="<%=h q_id %>">
+        <%
+        when 'textarea'
+        %>
+          <textarea class="form-control" name="<%=h q_id %>" rows="3" id="<%=h q_id %>"></textarea>
+        <%
+        when 'radio'
+          form_check_inline = q['inline'] ? "form-check-inline" : ''
+        %>
+          <div>
+            <%
+            q['option'].each_with_index do |opt, idx|
+              o_str, o_value = opt
+              o_value ||= o_str
+              o_id = [q_id, idx].join('-')
+            %>
+            <div class="form-check <%= form_check_inline %>">
+              <input class="form-check-input" type="radio" name="<%=h q_id %>" id="<%=h o_id %>" value="<%=h o_value %>">
+              <label class="form-check-label" for="<%=h o_id %>"><%=h o_str %></label>
+            </div>
+            <%
+            end
+            %>
+          </div>
+          <%
+          when 'checkbox'
+            form_check_inline = q['inline'] ? "form-check-inline" : ''
+          %>
+            <div>
+              <%
+              q['option'].each_with_index do |opt, idx|
+                o_str, o_value = opt
+                o_value ||= o_str
+                o_id = [q_id, idx].join('-')
+              %>
+              <div class="form-check <%= form_check_inline %>">
+                <input class="form-check-input" type="checkbox" name="<%=h q_id %>" id="<%=h o_id %>" value="<%=h o_value %>">
+                <label class="form-check-label" for="<%=h o_id %>"><%=h o_str %></label>
+              </div>
+              <%
+              end
+              %>
+            </div>
+  
+        <%
+        end %>
+        </div><%
+      end %>
+        <div class="form-group">
+          <label for="text1">項目1</label>
+          <input class="form-control" type="text" id="text1">
+        </div>
+        <div class="form-group">
+          <label for="radio1">項目2</label>
+          <div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="radio1" id="radio1" value="1">
+              <label class="form-check-label" for="radio1">選択肢1</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="radio1" id="radio2" value="2">
+              <label class="form-check-label" for="radio2">選択肢2</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="radio1" id="radio3" value="3">
+              <label class="form-check-label" for="radio3">選択肢3</label>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="checkbox1">項目3</label>
+          <div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" name="checkbox1" id="checkbox1-1" value="1">
+              <label class="form-check-label" for="checkbox1-1">選択肢1</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" name="checkbox1" id="checkbox1-2" value="2">
+              <label class="form-check-label" for="checkbox1-2">選択肢2</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" name="checkbox1" id="checkbox1-3" value="3">
+              <label class="form-check-label" for="checkbox1-3">選択肢3</label>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="select">項目4</label>
+          <select class="custom-select" name="select">
+            <option>選択肢1</option>
+            <option>選択肢2</option>
+            <option>選択肢3</option>
+            <option>選択肢4</option>
+            <option>選択肢5</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="range1">項目5</label>
+          <input class="custom-range" min="1" max="5" type="range" name="range1">
+        </div>
+        <div class="form-group">
+          <label for="textarea1">項目6</label>
+          <textarea class="form-control" name="range1" rows="3" id="textarea1"></textarea>
+        </div>
+        <button class="btn btn-primary">送信</button>
+      </form>
+    </div>
+  </div>
+</div>
